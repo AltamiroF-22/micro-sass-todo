@@ -2,13 +2,18 @@
   "name": "micro-sass-todo",
   "module": "index.ts",
   "type": "module",
+  "scripts": {
+    "dev": "bun --watch source/index.ts"
+  },
   "devDependencies": {
-    "@types/bun": "latest"
+    "@types/bun": "latest",
+    "prisma": "^5.20.0"
   },
   "peerDependencies": {
     "typescript": "^5.0.0"
   },
   "dependencies": {
+    "@prisma/client": "5.20.0",
     "@types/express": "^5.0.0",
     "express": "^4.21.1"
   }

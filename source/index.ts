@@ -4,6 +4,7 @@ import {
   listUniqueUserController,
   listUserController,
 } from "./controllers/user.controller";
+import { createTodoController } from "./controllers/todo.controller";
 
 const app = express();
 
@@ -18,8 +19,9 @@ const newUser = {
 
 app.get("/users", listUserController);
 app.get("/users/:userId", listUniqueUserController);
-
 app.post("/users", createUserController);
+
+app.post("/todos", createTodoController);
 
 app.listen(port, () => {
   console.log(`Server is now running on http://localhost:${port}`);

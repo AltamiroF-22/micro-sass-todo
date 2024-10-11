@@ -36,6 +36,7 @@ export const listUniqueUserController = async (
 
   response.send(user);
 };
+
 export const createUserController = async (
   request: Request,
   response: Response

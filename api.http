@@ -2,3 +2,13 @@ GET http://localhost:3000/users HTTP/1.1
 ###
 
 GET http://localhost:3000/users/5beca464-03c0-4d8b-bbde-b5f38492612c HTTP/1.1
+
+###
+
+POST http://localhost:3000/users HTTP/1.1
+content-type: application/json
+
+{
+    "name": "junior",
+    "email": "jnuha@gmail.com"
+}

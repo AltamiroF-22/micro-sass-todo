@@ -12,6 +12,10 @@ model User {
   name String
   email String @unique
 
+  stripeCustomerId String?
+  stripeSubscriptionId String?
+  stripeSubscriptionStatus String?
+
   created DateTime @default(now())
   updatedAt DateTime @updatedAt
 

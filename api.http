@@ -9,8 +9,8 @@ POST http://localhost:3000/users HTTP/1.1
 content-type: application/json
 
 {
-    "name": "junior",
-    "email": "jnuha@gmail.com"
+    "name": "camila",
+    "email": "camila@gmail.com"
 }
 
 ###
@@ -20,5 +20,16 @@ content-type: application/json
 x-user-id: 5beca464-03c0-4d8b-bbde-b5f38492612c
 
 {
-    "title": "task 1"
+    "title": "task 2323232"
 }
+
+###
+POST http://localhost:3000/checkout HTTP/1.1
+content-type: application/json
+x-user-id: 5beca464-03c0-4d8b-bbde-b5f38492612c
+
+
+###
+POST http://localhost:3000/checkout HTTP/1.1
+# content-type: application/json
+x-user-id: 552d3b6b-6a0b-49c4-aaac-368691b7adab

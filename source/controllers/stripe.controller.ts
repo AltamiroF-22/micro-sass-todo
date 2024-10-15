@@ -2,10 +2,11 @@ import type { Request, Response } from "express";
 import { prisma } from "../lib/prisma";
 import { config } from "../config";
 import {
-  handleProccessWebhookCheckout,
-  handleProccessWebhookSubscription,
+  handleProcessWebhookCheckout,
+  handleProcessWebhookSubscription,
   stripe,
 } from "../stripe";
+import Stripe from "stripe";
 
 export const stripeWebhookController = async (
   request: Request,
@@ -15,17 +16,21 @@ export const stripeWebhookController = async (
 
   if (!config.stripe.webhookSecret) {
     console.log("webhookSecret is not set!");
-    response.status(500).json({ error: "Stripe webhookSecret is not configured" });
+    response
+      .status(500)
+      .json({ error: "Stripe webhookSecret is not configured" });
     return;
   }
 
   const signature = request.headers["stripe-signature"] as string;
 
   try {
-    event = stripe.webhooks.constructEvent(
+    event = await stripe.webhooks.constructEventAsync(
       request.body,
       signature,
-      config.stripe.secretKey
+      config.stripe.secretKey,
+      undefined,
+      Stripe.createSubtleCryptoProvider()
     );
   } catch (err) {
     const errorMessage = err instanceof Error ? err.message : "Unknown error";
@@ -39,13 +44,13 @@ export const stripeWebhookController = async (
   try {
     switch (event.type) {
       case "checkout.session.completed":
-        await handleProccessWebhookCheckout(event);
+        await handleProcessWebhookCheckout(event);
         break;
       case "customer.subscription.created":
         // Process subscription created event
         break;
       case "customer.subscription.updated":
-        await handleProccessWebhookSubscription(event);
+        await handleProcessWebhookSubscription(event);
         break;
       default:
         console.log(`Unhandled event type ${event.type}`);

@@ -9,9 +9,6 @@ import { createCheckoutController } from "./controllers/checkout.controller";
 import { stripeWebhookController } from "./controllers/stripe.controller";
 
 const app = express();
-
-app.use(express.json());
-
 const port = 3000;
 
 app.post(
@@ -19,6 +16,8 @@ app.post(
   express.raw({ type: "application/json" }),
   stripeWebhookController
 );
+
+app.use(express.json());
 
 app.get("/users", listUserController);
 app.get("/users/:userId", listUniqueUserController);

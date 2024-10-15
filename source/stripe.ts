@@ -4,10 +4,29 @@ import { prisma } from "./lib/prisma";
 
 export const stripe = new Stripe(config.stripe.secretKey, {
   apiVersion: "2024-09-30.acacia",
+  httpClient: Stripe.createFetchHttpClient(),
 });
 
-export const createCheckoutSession = async (userId: string) => {
+const getStripeCustomerByEmail = async (
+  email: string
+): Promise<Stripe.Customer | null> => {
+  const customers = await stripe.customers.list({ email });
+  return customers.data.length > 0 ? customers.data[0] : null;
+};
+
+export const createCheckoutSession = async (
+  userId: string,
+  userEmail: string
+) => {
   try {
+    let customer = await getStripeCustomerByEmail(userEmail);
+
+    if (!customer) {
+      customer = await stripe.customers.create({
+        email: userEmail,
+      });
+    }
+
     const session = await stripe.checkout.sessions.create({
       payment_method_types: ["card"],
       line_items: [
@@ -18,17 +37,21 @@ export const createCheckoutSession = async (userId: string) => {
       ],
       mode: "subscription",
       client_reference_id: userId,
+      customer: customer.id,
       success_url: `http://localhost:5555/success.html`,
       cancel_url: `http://localhost:5555/cancel.html`,
     });
 
-    return session.url;
+    return {
+      stripeCustomerId: customer.id,
+      url: session.url,
+    };
   } catch (error) {
-    console.log(error);
+    throw new Error("Error to create checkout session");
   }
 };
 
-export const handleProccessWebhookCheckout = async (event: {
+export const handleProcessWebhookCheckout = async (event: {
   object: Stripe.Checkout.Session;
 }) => {
   const clientReferenceId = event.object.client_reference_id as string;
@@ -66,7 +89,7 @@ export const handleProccessWebhookCheckout = async (event: {
   });
 };
 
-export const handleProccessWebhookSubscription = async (event: {
+export const handleProcessWebhookSubscription = async (event: {
   object: Stripe.Subscription;
 }) => {
   const stripeCustomerId = event.object.customer as string;

@@ -7,25 +7,33 @@ export const stripe = new Stripe(config.stripe.secretKey, {
   httpClient: Stripe.createFetchHttpClient(),
 });
 
-const getStripeCustomerByEmail = async (
+export const getStripeCustomerByEmail = async (
   email: string
 ): Promise<Stripe.Customer | null> => {
-  const customers = await stripe.customers.list({ email });
-  return customers.data.length > 0 ? customers.data[0] : null;
+  let customer = await stripe.customers.list({ email });
+  return customer.data.length > 0 ? customer.data[0] : null;
+};
+
+export const createStripeCustomer = async (input: {
+  email: string;
+  name: string;
+}) => {
+  let customer = await getStripeCustomerByEmail(input.email);
+  if (customer) return customer;
+
+  return stripe.customers.create({
+    email: input.email,
+    name: input.name,
+  });
 };
 
 export const createCheckoutSession = async (
   userId: string,
-  userEmail: string
+  userEmail: string,
+  name: string
 ) => {
   try {
-    let customer = await getStripeCustomerByEmail(userEmail);
-
-    if (!customer) {
-      customer = await stripe.customers.create({
-        email: userEmail,
-      });
-    }
+    const customer = await createStripeCustomer({ email: userEmail, name });
 
     const session = await stripe.checkout.sessions.create({
       payment_method_types: ["card"],
@@ -44,6 +52,7 @@ export const createCheckoutSession = async (
 
     return {
       stripeCustomerId: customer.id,
+      stripeName: customer.name,
       url: session.url,
     };
   } catch (error) {

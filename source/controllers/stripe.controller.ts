@@ -1,5 +1,4 @@
 import type { Request, Response } from "express";
-import { prisma } from "../lib/prisma";
 import { config } from "../config";
 import {
   handleProcessWebhookCheckout,
@@ -28,7 +27,7 @@ export const stripeWebhookController = async (
     event = await stripe.webhooks.constructEventAsync(
       request.body,
       signature,
-      config.stripe.secretKey,
+      config.stripe.webhookSecret,
       undefined,
       Stripe.createSubtleCryptoProvider()
     );
@@ -47,7 +46,7 @@ export const stripeWebhookController = async (
         await handleProcessWebhookCheckout(event);
         break;
       case "customer.subscription.created":
-        // Process subscription created event
+        await handleProcessWebhookSubscription(event);
         break;
       case "customer.subscription.updated":
         await handleProcessWebhookSubscription(event);

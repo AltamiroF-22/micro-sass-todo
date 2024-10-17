@@ -24,7 +24,7 @@ export const createCheckoutController = async (
     return;
   }
 
-  const checkout = await createCheckoutSession(user.id, user.email);
+  const checkout = await createCheckoutSession(user.id, user.email, user.name);
 
   await prisma.user.update({
     where: {
